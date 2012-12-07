@@ -31,7 +31,14 @@ class Grid(object):
     def isPosValid(self,row,col):
         if not self.isValidPos(row,col):
             return False
-        return self.getVal(row,col) == self.maxVal(row,col)
+        val = self.getVal(row,col)
+        if val == 1:
+            return True
+        nborVals = self.getNeighbours(row,col)
+        for i in range(1,val):
+            if i not in nborVals:
+                return False
+        return True
 
     def getVal(self,row,col):
         if self.isValidPos(row,col):
@@ -53,7 +60,9 @@ class Grid(object):
         valid = True
         for row in range(self.rows):
             for col in range(self.cols):
-                valid = valid and self.isPosValid(row,col)
+                if not self.isPosValid(row,col):
+                    valid = False
+                    print "Error at {0},{1}".format(row,col)
         return valid
 
     def makeValid(self):
@@ -61,6 +70,26 @@ class Grid(object):
             for col in range(self.cols):
                 if not self.isPosValid(row,col):
                     self.setVal(row,col,self.maxVal(row,col))
+
+    def setVals(self,a):
+        assert len(a) == self.rows
+        assert len(a[0]) == self.cols
+
+        g = Grid(self.rows,self.cols)
+        for row in range(len(a)):
+            for col in range(len(a[row])):
+                g._grid[row][col] = a[row][col]
+        if g.isValid():
+            self._grid = g._grid
+            return True
+        else:
+            print g
+        return False
+
+    def maximize(self):
+        for row in range(self.rows):
+            for col in range(self.cols):
+                self.setVal(row,col,self.maxVal(row,col))
 
 def isEven(n):
     return 0 == (n%2)
@@ -73,11 +102,24 @@ if __name__ == '__main__':
     print "Sum:",g.sum()
 
     print "Checkerboard"
-    g.makeValid()
+    g.maximize()
     print g
     print "Sum:",g.sum()
 
-    print "makeValid(Checkerboard)"
-    g.makeValid()
+    print "90 by hand"
+    g.setVals([\
+            [3,2,1,2,3,2],\
+                [1,5,3,5,1,1],\
+                [3,4,2,4,3,2],\
+                [2,1,1,1,4,2],\
+                [3,5,4,2,5,1],\
+                [1,2,3,1,3,2]])
     print g
     print "Sum:",g.sum()
+
+    print "maximize(90)"
+    g.maximize()
+    print g
+    print "Sum:",g.sum()
+    
+                   
